@@ -2,44 +2,32 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
 
-def read_invoice_code_from_txt(file_path):
-    with open(file_path, 'r', encoding='utf-8') as f:
-        return f.readline().strip()
+ # Khởi động trình duyệt Chrome
+driver = webdriver.Chrome()
 
-def open_website(driver, url):
-    driver.get(url)
-    time.sleep(1)
+# Mở trang web
+driver.get("https://www.meinvoice.vn/tra-cuu")  
 
-def enter_invoice_code(driver, code):
-    input_box = driver.find_element(By.ID, "txtCode")
-    input_box.clear()
-    input_box.send_keys(code)
-    time.sleep(1)
+# Tìm ô và nhập mã hoá đơn
+invoice_input = driver.find_element(By.ID,"txtCode").send_keys("B1HEIRR8N0WP")
+try:
+    # bấm nút tìm kiếm
+    input_search = driver.find_element(By.ID,"btnSearchInvoice").click()
+    time.sleep(2)
 
-def search_invoice(driver):
-    driver.find_element(By.ID, "btnSearchInvoice").click()
-    time.sleep(3)
+    # bấm nút tải xuống và hiện ra 2 lựa chọn
+    download_button = driver.find_element(By.CLASS_NAME,"res-btn.download").click()
+    time.sleep(2)
 
-def download_invoice_as_pdf(driver):
-    try:
-        driver.find_element(By.CLASS_NAME, "res-btn.download").click()
-        time.sleep(2)
-        driver.find_element(By.XPATH, "//div[contains(@class,'txt-download-pdf')]").click()
-        print("Đã nhấn tải PDF.")
-    except Exception as e:
-        print("Không tìm thấy tuỳ chọn tải PDF:", e)
+    # tìm lựa chọn tải bằng pdf
+    pdf_option = driver.find_element(By.XPATH, "//div[contains(@class,'txt-download-pdf')]").click()
 
-def main():
-    invoice_code = read_invoice_code_from_txt("input/ma_tra_cuu.txt")
-    driver = webdriver.Chrome()
-    try:
-        open_website(driver, "https://www.meinvoice.vn/tra-cuu")
-        enter_invoice_code(driver, invoice_code)
-        search_invoice(driver)
-        download_invoice_as_pdf(driver)
-        time.sleep(10)
-    finally:
-        driver.quit()
+except Exception as e:
+    print("Không tìm thấy hoá đơn")
+   
 
-if __name__ == "__main__":
-    main()
+# duy trì hiện trang
+time.sleep(500)
+
+# đóng trình duyệt
+driver.quit()
